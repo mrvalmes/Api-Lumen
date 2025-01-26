@@ -81,6 +81,9 @@ $app->routeMiddleware([
     'jwtauth' => App\Http\Middleware\JwtMiddleware::class,
 ]);
 
+$app->middleware([
+    App\Http\Middleware\CorsMiddleware::class
+]);
 /*
 |--------------------------------------------------------------------------
 | Register Service Providers
@@ -95,7 +98,9 @@ $app->routeMiddleware([
     $app->register(App\Providers\AppServiceProvider::class);
     $app->register(App\Providers\AuthServiceProvider::class);
     $app->register(App\Providers\EventServiceProvider::class);
-    $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
+    $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);   
+
+
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes
@@ -106,6 +111,8 @@ $app->routeMiddleware([
 | can respond to, as well as the controllers that may handle them.
 |
 */
+
+
 
 $app->router->group([
     'namespace' => 'App\Http\Controllers',

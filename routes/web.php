@@ -2,39 +2,33 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It is a breeze. Simply tell Lumen the URIs it should respond to
-| and give it the Closure to call when that URI is requested.
-
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return "API Lumen corriendo...";
 });
-|
-*/
 
+// Grupo para la API
+$router->group(['prefix' => 'api'], function () use ($router) {
 
+    // Rutas para el login (Ejemplo)
+    $router->post('register', 'AuthController@register');
+    $router->post('login', 'AuthController@authenticate');
+    //$router->post('login', 'AuthController@login');
 
-$router->post('/auth/login', [
-    'uses' => 'AuthController@authenticate'
-]);
+    // Rutas para smartphones
+    $router->get('smartphones', 'SmartphoneController@index');     // listar
+    $router->post('smartphones', 'SmartphoneController@store');    // crear
+    $router->get('smartphones/{id}', 'SmartphoneController@show'); // ver uno
+    $router->put('smartphones/{id}', 'SmartphoneController@update');   // actualizar
+    $router->delete('smartphones/{id}', 'SmartphoneController@destroy'); // eliminar
 
-$router->group(
-    ['middleware' => 'jwt.auth'], 
-    function() use ($router){
-    $router->get('/users', 'UserController@index');
-    $router->post('/users', 'UserController@store');
+    // Ruta para facturas (facturación)
+    $router->post('facturas', 'FacturaController@store');  // crear la factura
+});
+
+// Para que devuelva 200 en cualquier ruta OPTIONS
+$router->options(
+    '/{any:.*}',
+    function () {
+        return response('', 200);
     }
 );
-
-$router->group(['prefix' => 'api'], function () use ($router) {
-    $router->get('smartphones', 'SmartphonesController@index');
-    $router->get('smartphones/{id}', 'SmartphonesController@show');
-    $router->post('smartphones', 'SmartphonesController@store');
-    $router->put('smartphones/{id}', 'SmartphonesController@update');
-    $router->delete('smartphones/{id}', 'SmartphonesController@destroy');
-});

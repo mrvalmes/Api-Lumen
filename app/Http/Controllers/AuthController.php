@@ -1,7 +1,5 @@
 <?php
 
-//metodo de autenticacion, para la api.
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -29,12 +27,57 @@ class AuthController extends Controller
         return JWT::encode($payload, env('JWT_SECRET'), 'HS256');
     }
 
+    /**
+     * Registrar un nuevo usuario.
+     */
+    public function register(Request $request)
+    {
+        // Valida los campos
+        // Nota: Lumen usa "validar" con $this->validate, si está habilitado.
+        // Ajusta las reglas según tu preferencia.
+        $this->validate($this->request, [
+            'nombre' => 'required|string',
+            'email'  => 'required|email|unique:users,email',
+            'pass'   => 'required|min:4',
+            'telefono' => 'required|max:10'
+        ]);
+
+        // Obtener los datos del Request
+        $nombre   = $this->request->input('nombre');
+        $email    = $this->request->input('email');
+        $pass     = $this->request->input('pass');
+        $telefono = $this->request->input('telefono');
+
+        // Crear el usuario
+        // IMPORTANTE: hashear la contraseña
+        $user = new User;
+        $user->nombre   = $nombre;
+        $user->email    = $email;
+        $user->pass  = Hash::make($request->input('pass'));
+        //$user->pass     = Hash::make($pass);
+        $user->telefono = $telefono;
+        $user->status   = true; // o 1, si tu columna es bool
+        $user->save();
+
+        // Si quieres devolver un token inmediatamente:
+        $token = $this->jwt($user);
+
+        return response()->json([
+            'success' => true,
+            'user'    => $user,
+            'token'   => $token
+        ], 201);
+    }
+
+    /**
+     * Iniciar sesión (generar token si pass coincide).
+     */
     public function authenticate()
     {
         $this->validate($this->request, [
             'email' => 'required|email',
-            'pass' => 'required'
-        ]);
+            'pass'  => 'required'
+        ]);       
 
         $user = User::where('email', $this->request->input('email'))->first();
 
@@ -44,7 +87,11 @@ class AuthController extends Controller
 
         // Verificar la contraseña hasheada
         if (Hash::check($this->request->input('pass'), $user->pass)) {
-            return response()->json(['token' => $this->jwt($user)], 200);
+            return response()->json([
+                'success' => true,
+                'token'   => $this->jwt($user),
+                'user'    => $user
+            ], 200);
         }
 
         return response()->json(['error' => 'Usuario o contraseña incorrecto.'], 400);
