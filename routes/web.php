@@ -22,7 +22,9 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->delete('smartphones/{id}', 'SmartphoneController@destroy'); // eliminar
 
     // Ruta para facturas (facturación)
+    $router->get('facturas', 'FacturaController@index');  // leer todas factura
     $router->post('facturas', 'FacturaController@store');  // crear la factura
+    $router->get('facturas/{id}', 'FacturaController@show');  // leer la factura
 });
 
 // Para que devuelva 200 en cualquier ruta OPTIONS

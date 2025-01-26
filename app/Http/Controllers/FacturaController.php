@@ -8,6 +8,12 @@ use Illuminate\Http\Request;
 
 class FacturaController extends Controller
 {
+    // GET /api/facturas
+    public function index()
+    {
+        return response()->json(Factura::all(), 200);
+    }
+    // POST Guardar una facturas
     public function store(Request $request)
     {
         // Ejemplo: calculamos monto total = precio * cantidad
@@ -21,7 +27,7 @@ class FacturaController extends Controller
             return response()->json(['error' => 'Smartphone no encontrado'], 404);
         }
 
-        $montoTotal = $smartphone->precio * $cantidad;
+        $montoTotal = $smartphone->Price * $cantidad;
 
         // Crear la factura
         $factura = Factura::create([
@@ -32,5 +38,14 @@ class FacturaController extends Controller
         ]);
 
         return response()->json($factura, 201);
+    }
+    // GET /api/facturas/{id}
+    public function show($id)
+    {
+        $factura = Factura::find($id);
+        if (!$factura) {
+            return response()->json(['error' => 'Factura no encontrada'], 404);
+        }
+        return response()->json($factura, 200);
     }
 }
